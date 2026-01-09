@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner Éthique IA | Votre Boussole Numérique</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="避開">
+    <style>
+        :root {
+            --primary: #6366f1; /* Indigo moderne */
+            --secondary: #10b981; /* Emeraude */
+            --accent: #8b5cf6; /* Violet */
+            --danger: #ef4444; /* Rouge doux */
+            --warning: #f59e0b; /* Ambre */
+            --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-main: #1f2937;
+            --text-light: #6b7280;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            padding: 20px;
+        }
+
+        .game-container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 800px;
+            min-height: 550px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container {
+            margin-bottom: 40px;
+        }
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .progress-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #e5e7eb;
+            z-index: 0;
+            transform: translateY(-50%);
+            border-radius: 2px;
+        }
+        .door-step {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border: 3px solid #e5e7eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            z-index: 1;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 0.9em;
+            color: var(--text-light);
+        }
+        .door-step.active { 
+            border-color: var(--primary); 
+            color: var(--primary); 
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+        .door-step.done { 
+            background: var(--secondary); 
+            border-color: var(--secondary); 
+            color: white; 
+        }
+
+        /* --- CONTENT --- */
+        .stage-content {
+            animation: fadeIn 0.6s ease-out;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 { font-weight: 800; font-size: 2.2em; margin-top: 0; letter-spacing: -0.02em; color: #111827; }
+        h2 { color: var(--primary); font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+        
+        .intro-box {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--primary);
+            text-align: left;
+            font-size: 0.95em;
+            line-height: 1.5;
+            color: var(--text-light);
+        }
+
+        input[type="text"] {
+            padding: 18px;
+            width: 100%;
+            max-width: 400px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1.1em;
+            margin: 20px auto 30px;
+            outline: none;
+            transition: 0.3s;
+            text-align: center;
+            font-family: inherit;
+        }
+        input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+
+        .btn-main {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); background: #4f46e5; }
+
+        /* --- CHOIX --- */
+        .choices-grid {
+            display: grid;
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .btn-choice {
+            background: white;
+            border: 2px solid #f3f4f6;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-size: 1.05em;
+        }
+        .btn-choice:hover { 
+            border-color: var(--primary); 
+            background: #f5f3ff;
+            transform: translateX(8px);
+        }
+        .icon-wrapper {
+            font-size: 1.8em;
+            min-width: 50px;
+            height: 50px;
+            background: #f9fafb;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- MODAL FEEDBACK --- */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--card-bg);
+            border-radius: 24px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            z-index: 10;
+            animation: modalIn 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .advice-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid #f3f4f6;
+            margin: 20px 0;
+            line-height: 1.6;
+            width: 100%;
+        }
+
+        /* --- RAPPORT FINAL --- */
+        .report-grid {
+            text-align: left;
+            margin-top: 20px;
+        }
+        .report-card {
+            background: #fff;
+            margin-bottom: 12px;
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid #f3f4f6;
+            animation: slideUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        .status-dot {
+            width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+        }
+
+        .hidden { display: none !important; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes modalIn { from { opacity: 0; scale: 0.95; } to { opacity: 1; scale: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress-line"></div>
+            <div class="door-step active" id="step-1">1</div>
+            <div class="door-step" id="step-2">2</div>
+            <div class="door-step" id="step-3">3</div>
+            <div class="door-step" id="step-4">4</div>
+            <div class="door-step" id="step-5">5</div>
+        </div>
+    </div>
+
+    <div id="screen-start" class="stage-content">
+        <h2>Initiative Pédagogique</h2>
+        <h1>Scanner Éthique IA</h1>
+        
+        <div class="intro-box">
+            "L'éthique n'est pas une check-list, c'est une boussole. Cet outil vous aide à poser les bonnes questions pour un usage responsable de l'Intelligence Artificielle."
+        </div>
+
+        <p style="color: var(--text-light)">Prêt à passer votre projet au détecteur ?</p>
+        
+        <input type="text" id="project-input" placeholder="Nom de votre projet (ex: Aide aux devoirs)">
+        
+        <div>
+            <button class="btn-main" onclick="startGame()">Lancer l'Analyse</button>
+        </div>
+    </div>
+
+    <div id="screen-question" class="stage-content hidden">
+        <h2 id="q-category">CATÉGORIE</h2>
+        <h1 id="q-text" style="font-size: 1.5em; margin-bottom: 25px;">...</h1>
+        <div id="q-buttons" class="choices-grid"></div>
+    </div>
+
+    <div id="screen-end" class="stage-content hidden">
+        <h2>Résultat de l'analyse</h2>
+        <h1>Feuille de Route</h1>
+        <p>Projet : <strong id="final-project-name" style="color: var(--primary)"></strong></p>
+        
+        <div id="final-report-container" class="report-grid"></div>
+        
+        <div style="margin-top: 30px;">
+            <button class="btn-main" onclick="location.reload()">Nouvelle Analyse</button>
+        </div>
+    </div>
+
+    <div id="modal-feedback" class="modal-overlay">
+        <div id="modal-icon" style="font-size: 4em; margin-bottom: 10px;">💡</div>
+        <h1 id="modal-title" style="font-size: 1.8em;">Conseil</h1>
+        <div class="advice-card" id="modal-text">...</div>
+        <button class="btn-main" onclick="nextQuestion()">Continuer ➔</button>
+    </div>
+
+</div>
+
+<script>
+    const questions = [
+        {
+            category: "1. Fiabilité & Vérité",
+            text: "Le projet repose-t-il sur des faits exacts ou des données historiques précises ?",
+            options: [
+                {
+                    text: "Oui, la précision est cruciale",
+                    icon: "⚖️",
+                    title: "Risque d'Hallucination",
+                    advice: "L'IA peut inventer des faits avec assurance. <br><br><strong>Action :</strong> Utilisez des outils avec sources (Perplexity) ou importez vos propres documents (RAG/NotebookLM). Vérifiez chaque date et nom cité.",
+                    summary: "<strong>Fiabilité :</strong> Vigilance haute. Double vérification humaine obligatoire.",
+                    level: "warn"
+                },
+                {
+                    text: "Non, c'est un travail de création/style",
+                    icon: "🎨",
+                    title: "Zone Créative",
+                    advice: "L'IA est excellente ici. <br><br><strong>Conseil :</strong> Concentrez-vous sur l'originalité de votre prompt pour éviter les clichés de rédaction habituels des modèles.",
+                    summary: "<strong>Fiabilité :</strong> Usage créatif validé. Attention à la cohérence du ton.",
+                    level: "ok"
+                }
+            ]
+        },
+        {
+            category: "2. Confidentialité",
+            text: "Allez-vous utiliser des noms d'élèves, des emails ou des secrets professionnels ?",
+            options: [
+                {
+                    text: "Oui, il y a des données privées",
+                    icon: "🔒",
+                    title: "Alerte Vie Privée",
+                    advice: "Une IA publique 'apprend' de vos données. <br><br><strong>Règle d'or :</strong> Anonymisez tout (remplacez les noms par des initiales) ou utilisez des outils locaux comme GPT4All ou LM Studio.",
+                    summary: "<strong>Confidentialité :</strong> Données sensibles détectées. Anonymisation requise.",
+                    level: "danger"
+                },
+                {
+                    text: "Non, uniquement des données publiques",
+                    icon: "🌍",
+                    title: "Données Sûres",
+                    advice: "C'est parfait. Pensez tout de même à désactiver l'historique de discussion si vous ne voulez pas que vos prompts servent à l'entraînement futur.",
+                    summary: "<strong>Confidentialité :</strong> Faible risque. Pratique responsable confirmée.",
+                    level: "ok"
+                }
+            ]
+        },
+        {
+            category: "3. Écologie Numérique",
+            text: "La tâche demandée est-elle simple (résumé, mail) ou complexe (codage, analyse longue) ?",
+            options: [
+                {
+                    text: "Tâche simple ou rapide",
+                    icon: "🌱",
+                    title: "Sobriété Numérique",
+                    advice: "Inutile d'utiliser un modèle géant. <br><br><strong>Astuce :</strong> Privilégiez les modèles 'Mini' (GPT-4o Mini, Claude Haiku). Ils sont 10x moins énergivores et beaucoup plus rapides.",
+                    summary: "<strong>Écologie :</strong> Recommandation d'utiliser des modèles 'Small' (SLM).",
+                    level: "ok"
+                },
+                {
+                    text: "Analyse lourde et complexe",
+                    icon: "🚀",
+                    title: "Usage Justifié",
+                    advice: "Un grand modèle est nécessaire. <br><br><strong>Optimisation :</strong> Préparez un prompt très précis ('One-Shot') pour éviter de devoir recommencer la génération plusieurs fois.",
+                    summary: "<strong>Écologie :</strong> Usage de modèles 'Large' justifié mais à optimiser.",
+                    level: "warn"
+                }
+            ]
+        },
+        {
+            category: "4. Inclusion & Biais",
+            text: "Votre contenu va-t-il décrire ou représenter des personnes ?",
+            options: [
+                {
+                    text: "Oui (personnages, groupes sociaux...)",
+                    icon: "🤝",
+                    title: "Biais Culturels",
+                    advice: "L'IA reflète souvent des clichés occidentaux ou sexistes. <br><br><strong>Action :</strong> Demandez explicitement de la diversité dans votre prompt et vérifiez qu'aucun stéréotype ne s'est glissé dans le résultat.",
+                    summary: "<strong>Inclusion :</strong> Risque de biais. Diversifiez vos consignes.",
+                    level: "warn"
+                },
+                {
+                    text: "Non, c'est purement technique",
+                    icon: "⚙️",
+                    title: "Neutralité",
+                    advice: "Le risque est moindre, mais restez vigilant sur le vocabulaire employé pour qu'il reste accessible à tous.",
+                    summary: "<strong>Inclusion :</strong> Neutre. Veillez à la clarté du langage.",
+                    level: "ok"
+                }
+            ]
+        },
+        {
+            category: "5. Responsabilité",
+            text: "Quelle est l'importance du résultat final (note, décision pro, publication) ?",
+            options: [
+                {
+                    text: "Impact important / Officiel",
+                    icon: "✍️",
+                    title: "Humain aux commandes",
+                    advice: "L'IA ne doit jamais décider seule. <br><br><strong>Règle :</strong> Vous restez l'auteur légal et moral. Signez le travail uniquement après une relecture critique intégrale.",
+                    summary: "<strong>Responsabilité :</strong> Impact fort. Supervision humaine totale exigée.",
+                    level: "danger"
+                },
+                {
+                    text: "Impact faible / Brouillon",
+                    icon: "💡",
+                    title: "Co-pilote",
+                    advice: "L'IA peut agir comme un partenaire créatif. <br><br><strong>Conseil :</strong> Mentionnez que vous avez utilisé une IA, c'est la base de la transparence éthique.",
+                    summary: "<strong>Responsabilité :</strong> Collaboration autorisée. Transparence recommandée.",
+                    level: "ok"
+                }
+            ]
+        }
+    ];
+
+    let currentStep = 0;
+    let projectName = "";
+    let userReport = []; 
+
+    function startGame() {
+        const input = document.getElementById('project-input').value;
+        if (input.trim() === "") {
+            alert("Veuillez donner un nom à votre projet pour personnaliser l'analyse.");
+            return;
+        }
+        projectName = input;
+        document.getElementById('screen-start').classList.add('hidden');
+        document.getElementById('screen-question').classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        updateProgressBar();
+        const q = questions[currentStep];
+        document.getElementById('q-category').innerText = q.category;
+        document.getElementById('q-text').innerText = q.text;
+        
+        const btnContainer = document.getElementById('q-buttons');
+        btnContainer.innerHTML = ""; 
+        
+        q.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-choice';
+            btn.innerHTML = `<div class="icon-wrapper">${opt.icon}</div> <div>${opt.text}</div>`;
+            btn.onclick = () => showFeedback(opt);
+            btnContainer.appendChild(btn);
+        });
+    }
+
+    function updateProgressBar() {
+        document.querySelectorAll('.door-step').forEach((el, index) => {
+            el.className = 'door-step';
+            el.innerHTML = index + 1;
+            if (index < currentStep) {
+                el.className = 'door-step done';
+                el.innerHTML = '✓';
+            } else if (index === currentStep) {
+                el.className = 'door-step active';
+            }
+        });
+    }
+
+    function showFeedback(option) {
+        userReport.push(option);
+        document.getElementById('modal-icon').innerText = option.icon;
+        document.getElementById('modal-title').innerText = option.title;
+        document.getElementById('modal-text').innerHTML = option.advice;
+        document.getElementById('modal-feedback').style.display = 'flex';
+    }
+
+    function nextQuestion() {
+        document.getElementById('modal-feedback').style.display = 'none';
+        currentStep++;
+        if (currentStep < questions.length) {
+            loadQuestion();
+        } else {
+            showEndScreen();
+        }
+    }
+
+    function showEndScreen() {
+        document.getElementById('screen-question').classList.add('hidden');
+        document.getElementById('screen-end').classList.remove('hidden');
+        document.getElementById('final-project-name').innerText = projectName;
+        updateProgressBar();
+        
+        const listContainer = document.getElementById('final-report-container');
+        listContainer.innerHTML = "";
+        
+        userReport.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'report-card';
+            card.style.animationDelay = (index * 0.1) + 's';
+            
+            let dotColor = "var(--secondary)";
+            if(item.level === "warn") dotColor = "var(--warning)";
+            if(item.level === "danger") dotColor = "var(--danger)";
+
+            card.innerHTML = `
+                <div class="status-dot" style="background:${dotColor}"></div>
+                <div style="font-size:0.95em">${item.summary}</div>
+            `;
+            listContainer.appendChild(card);
+        });
+    }
+</script>
+
+</body>
+</html>
